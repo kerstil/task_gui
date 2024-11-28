@@ -8,7 +8,6 @@ from Rectangle import Rectangle
 
 class TaskGui:
     def __init__(self, main):
-
         self.main = main
         main.title("Task GUI") #Võib ka ilma self.antud versioonis
         self.main.geometry("500x280")
@@ -39,6 +38,9 @@ class TaskGui:
         self.forget_rectangle()  # Unusta/Peida ristkülik
         # Kuula comboboxi muutusi
         self.cmb.bind("<<ComboboxSelected>>", self.changed)
+        self.main.bind("<Return>",lambda event=None: self.calculate())
+
+
 
     def create_button(self):
         button = Button(self.frame, text="Näita", command=lambda:self.calculate())
@@ -111,7 +113,7 @@ class TaskGui:
         self.result.delete("1.0", "end")  # Tühjenda tulemuskast
         self.result.config(state="disabled")  # Tulemuskasti sisu EI SAA muuta
 
-    def calculate (self):
+    def calculate(self):
         cmb_index = self.cmb.current()
         if cmb_index == 1:
             try:
