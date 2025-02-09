@@ -4,10 +4,12 @@ from tkinter.ttk import Combobox, Button, Entry, Label
 
 from Circle import Circle
 from Rectangle import Rectangle
+from Cone import Cone
 
 
 class TaskGui:
     def __init__(self, main):
+
         self.main = main
         main.title("Task GUI") #Võib ka ilma self.antud versioonis
         self.main.geometry("500x280")
@@ -17,7 +19,7 @@ class TaskGui:
         self.frame.pack(fill="both", expand=True)
 
         # Create Combobox
-        self.cmb = Combobox(self.frame, values=("Vali kujund", "Ring ", "Ristkülik"))
+        self.cmb = Combobox(self.frame, values=("Vali kujund", "Ring ", "Ristkülik", "Koonus"))
         self.cmb.current(0)  #Vali kujund
         self.cmb["state"] = "readonly"  # Comboboxi sisu ei saa muuta
         self.cmb.grid(row=0, column=0, padx=3, pady=3,columnspan=2, sticky="ew")
@@ -26,6 +28,7 @@ class TaskGui:
         # Ujuvad vidinad  (Ring ja Ristkülik)
         self.lbl_circle, self.txt_circle = self.create_circle_widget()
         self.lbl_a, self.lbl_b, self.txt_a, self.txt_b = self.create_rectangle_widget()
+        self.lbl_r, self.txt_r, self.lbl_h, self.txt_h = self.create_cone_widget()
 
         # Create button
         self.btn_submit = self.create_button()
@@ -38,9 +41,6 @@ class TaskGui:
         self.forget_rectangle()  # Unusta/Peida ristkülik
         # Kuula comboboxi muutusi
         self.cmb.bind("<<ComboboxSelected>>", self.changed)
-        self.main.bind("<Return>",lambda event=None: self.calculate())
-
-
 
     def create_button(self):
         button = Button(self.frame, text="Näita", command=lambda:self.calculate())
@@ -79,6 +79,23 @@ class TaskGui:
         text_b.grid(row=2, column=1, padx=3, pady=3, sticky="ew")
 
         return label_a, label_b, text_a, text_b
+    
+    def create_cone_widget(self):
+        label_r = Label(self.frame, text="Raadius")
+        label_r.grid(row=1, column=0, padx=3, pady=3, sticky="ew")
+
+        text_r = Entry(self.frame, width=12)
+        text_r.focus()
+        text_r.grid(row=1, column=1, padx=3, pady=3, sticky="ew")
+
+        label_h = Label(self.frame, text="Kõrgus")
+        label_h.grid(row=2, column=0, padx=3, pady=3, sticky="ew")
+
+        text_h = Entry(self.frame, width=12)
+        text_h.grid(row=2, column=1, padx=3, pady=3, sticky="ew")
+
+        return label_r, text_r, label_h, text_h
+    
     def forget_circle(self):
         self.lbl_circle.grid_forget()
         self.txt_circle.grid_forget()
@@ -90,6 +107,13 @@ class TaskGui:
         self.txt_a.grid_forget()
         self.txt_b.grid_forget()
         self.btn_submit ["state"] = "disabled"
+        
+    def forget_cone(self):
+        self.lbl_r.grid_forget()
+        self.txt_r.grid_forget()
+        self.lbl_h.grid_forget()
+        self.txt_h.grid_forget()
+        self.btn_submit["state"] = "disabled"
 
     def changed(self, event= None):
         combo_index = self.cmb.current()    # Mitmes valik comboboxist (0, 1, 2)
@@ -106,6 +130,11 @@ class TaskGui:
             self.lbl_a, self.lbl_b, self.txt_a, self.txt_b = self.create_rectangle_widget()
             self.forget_circle()
             self.btn_submit ["state"] = "normal"
+        elif combo_index == 3:  # Koonus
+            self.lbl_r, self.txt_r, self.lbl_h, self.txt_h = self.create_cone_widget()
+            self.forget_circle()
+            self.forget_rectangle()
+            self.btn_submit["state"] = "normal"
         self.clear_result()  # Tulemuskasti sisu kustutamine
 
     def clear_result(self):
@@ -113,7 +142,7 @@ class TaskGui:
         self.result.delete("1.0", "end")  # Tühjenda tulemuskast
         self.result.config(state="disabled")  # Tulemuskasti sisu EI SAA muuta
 
-    def calculate(self):
+    def calculate (self):
         cmb_index = self.cmb.current()
         if cmb_index == 1:
             try:
@@ -153,6 +182,27 @@ class TaskGui:
             self.txt_b.delete(0, "end")
             self.txt_a.focus()
 
+        elif cmb_index == 3:  # Koonus
+    
+            try:
+                radius = float(self.txt_r.get().strip())
+                height = float(self.txt_h.get().strip())
+                cone = Cone(radius, height)
+        
+                self.clear_result()
+                self.result.config(state="normal")
+                self.result.insert("1.0", str(cone))
+                self.result.config(state="disabled")
+                self.txt_r.delete(0, "end")
+                self.txt_h.delete(0, "end")
+                self.txt_r.focus()
+    
+            except ValueError:
+                messagebox.showerror("Viga", "Raadius ja kõrgus peavad olema numbrid.")
+        
+            self.txt_r.delete(0, "end")
+            self.txt_h.delete(0, "end")
+            self.txt_r.focus()
 
 
 
